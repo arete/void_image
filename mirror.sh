@@ -1,6 +1,7 @@
-xbps-install -Syu -R https://repo.voidlinux.eu/current/ -r /root/void/root -c /root/void/cache base-system etckeeper grub perl
+xbps-install -Syu -R https://repo.voidlinux.eu/current/ -r /root/void/root -c /root/void/cache base-system etckeeper grub 
 
 
-
-#xbps-rindex -a *.xbps
+cd cache
+xbps-rindex -a *.xbps
+cd - 
 

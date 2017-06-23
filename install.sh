@@ -1,7 +1,13 @@
-ROOT=/root/void/mnt
-DEVICE=/dev/sdb
-REPO=/root/void/cache
-ROOT_DEVICE=/dev/sdb1
+
+
+CONFIG=$1
+if [ ! -f "${CONFIG}" ]; then
+        echo "${PASSED} not is  a file";
+	exit
+fi
+. $CONFIG
+
+
 mkfs.ext4 $ROOT_DEVICE -F
 mount $ROOT_DEVICE $ROOT
 
@@ -9,7 +15,7 @@ mount $ROOT_DEVICE $ROOT
 grep $ROOT /proc/mounts >/dev/null || exit
 
 #installing
-xbps-install -Syu -R $REPO -r $ROOT perl base-system   grub etckeeper
+xbps-install -Syu -R $REPO -r $ROOT perl base-system  grub etckeeper || exit
 
 #mout
 mount --rbind /sys $ROOT/sys 
@@ -21,30 +27,24 @@ chroot $ROOT chown root:root /
 chroot $ROOT etckeeper init
 chroot $ROOT etckeeper commit "Initial commit" 
 #ssh services
-chroot $ROOT sh -c "ln -sf /etc/sv/sshd /var/service"
+chroot $ROOT sh -c "ln -s /etc/sv/sshd /etc/runit/runsvdir/default"
 chroot $ROOT sh -c 'echo "Void64Linux" > /etc/hostname'
 #copy ssh ed25519.pub
 
 #root passowrd
 chroot $ROOT sh -c 'echo "root:voidlinux" | chpasswd -c SHA512'
-
+chroot $ROOT sh -c 'chsh -s /bin/bash root'
 chroot $ROOT sh -c 'echo "LANG=en_US.UTF-8" > /etc/locale.conf'
 chroot $ROOT sh -c 'echo "en_US.UTF-8 UTF-8" >> /etc/default/libc-locales'
 chroot $ROOT sh -c 'echo "KEYMAP=it" >> /etc/rc.conf'
-#chroot $ROOT sh -c "echo 'TIMEZONE="Europe/Rome"' >> /etc/rc.conf"
+chroot $ROOT sh -c "echo 'TIMEZONE="Europe/Rome"' >> /etc/rc.conf"
 chroot $ROOT sh -c 'xbps-reconfigure -f glibc-locales'
 chroot $ROOT sh -c 'echo "hostonly=yes" > /etc/dracut.conf.d/hostonly.conf'
 #network config
-ip link set dev eth0 up
-ip addr add 192.168.1.2/24 brd + dev eth0
-ip route add default via 192.168.1.1
-chroot $ROOT sh -c 'echo "ip link set dev eth0 up" >> /etc/rc.local'
-chroot $ROOT sh -c 'echo "ip link set dev eth0 up" >> /etc/rc.local'
-chroot $ROOT sh -c 'echo "ip addr add 192.168.2.253/24 dev  eth0 " >> /etc/rc.local'
-chroot $ROOT sh -c 'echo "ip route add default via  192.168.2.3 " >> /etc/rc.lo
-cal'
-
-
+chroot $ROOT sh -c "echo 'ip link set dev $NET_DEVICE up' >>/etc/rc.local"
+chroot $ROOT sh -c "echo 'ip addr add $NET_IP dev $NET_DEVICE' >>/etc/rc.local"
+chroot $ROOT sh -c "echo 'ip route add default via $NET_ROUTER' >> etc/rc.local"
+chroot $ROOT sh -c "echo 'nameserver $NET_DNS'>/etc/resolv.conf"
 
 KERNEL=$(chroot $ROOT sh -c "xbps-query --regex -s 'linux.\..'|cut -d ' ' -f 2|head -1|cut -d '-' -f 1")
 
