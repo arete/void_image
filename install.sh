@@ -28,7 +28,7 @@ chroot $ROOT etckeeper init
 chroot $ROOT etckeeper commit "Initial commit" 
 #ssh services
 chroot $ROOT sh -c "ln -s /etc/sv/sshd /etc/runit/runsvdir/default"
-chroot $ROOT sh -c 'echo "Void64Linux" > /etc/hostname'
+chroot $ROOT sh -c 'echo "HostKvm" > /etc/hostname'
 #copy ssh ed25519.pub
 
 #root passowrd
