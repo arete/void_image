@@ -1,0 +1,9 @@
+ROOT=/root/void/mnt
+DEVICE=/dev/loop0
+REPO=/root/void/cache
+ROOT_DEVICE=/dev/loop1
+NET_DEVICE=enp2s0
+NET_IP=192.168.2.253/24
+NET_ROUTER=192.168.2.3
+NET_DNS=8.8.8.8
+
