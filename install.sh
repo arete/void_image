@@ -1,6 +1,6 @@
 
 
-CONFIG=$1
+CONFIG=$1/config
 if [ ! -f "${CONFIG}" ]; then
         echo "${PASSED} not is  a file";
 	exit
@@ -15,7 +15,7 @@ mount $ROOT_DEVICE $ROOT
 grep $ROOT /proc/mounts >/dev/null || exit
 
 #installing
-xbps-install -Syu -R $REPO -r $ROOT perl base-system  grub etckeeper || exit
+xbps-install -Syu -R $REPO -r $ROOT  base-system  grub etckeeper  samba || exit
 
 #mout
 mount --rbind /sys $ROOT/sys 
@@ -39,7 +39,7 @@ chroot $ROOT sh -c 'echo "en_US.UTF-8 UTF-8" >> /etc/default/libc-locales'
 chroot $ROOT sh -c 'echo "KEYMAP=it" >> /etc/rc.conf'
 chroot $ROOT sh -c "echo 'TIMEZONE="Europe/Rome"' >> /etc/rc.conf"
 chroot $ROOT sh -c 'xbps-reconfigure -f glibc-locales'
-chroot $ROOT sh -c 'echo "hostonly=yes" > /etc/dracut.conf.d/hostonly.conf'
+#chroot $ROOT sh -c 'echo "hostonly=yes" > /etc/dracut.conf.d/hostonly.conf'
 #network config
 chroot $ROOT sh -c "echo 'ip link set dev $NET_DEVICE up' >>/etc/rc.local"
 chroot $ROOT sh -c "echo 'ip addr add $NET_IP dev $NET_DEVICE' >>/etc/rc.local"
@@ -49,7 +49,11 @@ chroot $ROOT sh -c "echo 'nameserver $NET_DNS'>/etc/resolv.conf"
 KERNEL=$(chroot $ROOT sh -c "xbps-query --regex -s 'linux.\..'|cut -d ' ' -f 2|head -1|cut -d '-' -f 1")
 
 chroot $ROOT sh -c "xbps-reconfigure -f $KERNEL" 
-chroot $ROOT sh -c "grub-install $DEVICE"
+#chroot $ROOT sh -c "grub-install --target=i386-pc  $DEVICE"
+
+ echo "(hd0) /dev/loop0" > mnt/boot/device.map
+chroot $ROOT grub-install --no-floppy --grub-mkdevicemap=/boot/device.map  --modules="biosdisk part_msdos ext2 configfile normal multiboot" --target=i386-pc  /dev/loop0
+
 chroot $ROOT sh -c 'grub-mkconfig -o /boot/grub/grub.cfg'
 
 
