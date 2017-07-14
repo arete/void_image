@@ -1,11 +1,11 @@
 
-
-CONFIG=$1/config
-if [ ! -f "${CONFIG}" ]; then
-        echo "${PASSED} not is  a file";
+CONFIG=$1
+CONFIG_FILE=$CONFIG/config
+if [ ! -f "${CONFIG_FILE}" ]; then
+        echo "${CONFIG_FILE} not is  a file";
 	exit
 fi
-. $CONFIG
+. $CONFIG_FILE
 
 
 mkfs.ext4 $ROOT_DEVICE -F
@@ -26,9 +26,15 @@ chroot $ROOT chmod 755 /
 chroot $ROOT chown root:root /
 chroot $ROOT etckeeper init
 chroot $ROOT etckeeper commit "Initial commit" 
-#ssh services
-chroot $ROOT sh -c "ln -s /etc/sv/sshd /etc/runit/runsvdir/default"
-chroot $ROOT sh -c 'echo "HostKvm" > /etc/hostname'
+#enable services
+SERVICEDIR=$ROOT/etc/sv
+for f in ${SERVICES}; do
+        ln -sf /etc/sv/$f $ROOT/etc/runit/runsvdir/default/
+done
+
+#overlay
+cp -dpR $CONFIG/overlay/* $ROOT 
+echo "HostKvm" > $ROOT/etc/hostname
 #copy ssh ed25519.pub
 
 #root passowrd
@@ -51,8 +57,9 @@ KERNEL=$(chroot $ROOT sh -c "xbps-query --regex -s 'linux.\..'|cut -d ' ' -f 2|h
 chroot $ROOT sh -c "xbps-reconfigure -f $KERNEL" 
 #chroot $ROOT sh -c "grub-install --target=i386-pc  $DEVICE"
 
- echo "(hd0) /dev/loop0" > mnt/boot/device.map
-chroot $ROOT grub-install --no-floppy --grub-mkdevicemap=/boot/device.map  --modules="biosdisk part_msdos ext2 configfile normal multiboot" --target=i386-pc  /dev/loop0
+echo "(hd0) $DEVICE" > $ROOT//boot/device.map
+echo "GRUB_DISABLE_OS_PROBER=true" | tee -a $ROOT/etc/default/grub
+chroot $ROOT grub-install --no-floppy --grub-mkdevicemap=/boot/device.map  --modules="biosdisk part_msdos ext2 configfile normal multiboot" --target=i386-pc $DEVICE 
 
 chroot $ROOT sh -c 'grub-mkconfig -o /boot/grub/grub.cfg'
 
