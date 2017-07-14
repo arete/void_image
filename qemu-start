@@ -1,2 +1,2 @@
-qemu-system-x86_64 -m 1024 -drive file=img/test.img,if=virtio,format=raw  -cpu host -enable-kvm
+qemu-system-x86_64 -m 1024 -drive file=img/test.img,if=virtio,format=raw  -cpu host -enable-kvm  -net nic,macaddr=00:16:3e:00:00:65,model=virtio 
 
