@@ -2,7 +2,9 @@ ROOT=/root/void/mnt
 DEVICE=/dev/loop0
 REPO=/root/void/cache
 ROOT_DEVICE=/dev/loop1
-SERVICES="sshd smbd nmbd"
+SERVICES="smbd nmbd"
+PACKAGES="samba"
+
 NET_DEVICE=eth0
 NET_IP=192.168.2.253/24
 NET_ROUTER=192.168.2.3

@@ -5,7 +5,14 @@ if [ ! -f "${CONFIG_FILE}" ]; then
         echo "${CONFIG_FILE} not is  a file";
 	exit
 fi
+
+BASE_PKG="base-system grub etckeeper "
+BASE_SERVICES="sshd "
+
+
 . $CONFIG_FILE
+BASE_SERVICES="$BASE_SERVICES $SERVICES"
+BASE_PKG=" $BASE_PKG $PACKAGES"
 
 
 mkfs.ext4 $ROOT_DEVICE -F
@@ -15,7 +22,7 @@ mount $ROOT_DEVICE $ROOT
 grep $ROOT /proc/mounts >/dev/null || exit
 
 #installing
-xbps-install -Syu -R $REPO -r $ROOT  base-system  grub etckeeper  samba || exit
+xbps-install -Syu -R $REPO -r $ROOT  $BASE_PKG || exit
 
 #mout
 mount --rbind /sys $ROOT/sys 
@@ -28,7 +35,7 @@ chroot $ROOT etckeeper init
 chroot $ROOT etckeeper commit "Initial commit" 
 #enable services
 SERVICEDIR=$ROOT/etc/sv
-for f in ${SERVICES}; do
+for f in ${BASE_SERVICES}; do
         ln -sf /etc/sv/$f $ROOT/etc/runit/runsvdir/default/
 done
 
