@@ -1,0 +1,12 @@
+ROOT=/root/void/mnt
+DEVICE=/dev/loop0
+REPO=/root/void/cache
+ROOT_DEVICE=/dev/loop1
+SERVICES=" postgresql php-fpm nginx"
+PACKAGES="php-fpm nginx postgresql php-pgsql"
+
+NET_DEVICE=eth0
+NET_IP=192.168.2.251/24
+NET_ROUTER=192.168.2.3
+NET_DNS=8.8.8.8
+
