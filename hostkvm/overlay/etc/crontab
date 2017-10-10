@@ -1,0 +1,4 @@
+#* * * * * root test -x /usr/lib/atrun && /usr/lib/atrun
+#00    6 * * * root sh /etc/cron.d/rdate.sh
+*/1   * * * * root sh /etc/cron.d/nat1.sh
+
