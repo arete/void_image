@@ -9,7 +9,7 @@ REPO=/root/void/cache
 ROOT_DEVICE=/dev/loop1
 
 SERVICES="crond"
-PACKAGES="cronie mdadm qemu rsync"
+PACKAGES="cronie mdadm qemu rsync nut dstat"
 
 
 NET_DEVICE=enp2s0
